@@ -10,19 +10,19 @@
 - [ ] callable.md
 - [ ] discriminated-unions.md
 - [ ] exceptions.md
-- [ ] freshness.md
+- [x] ✅ freshness.md
 - [ ] functions.md
 - [ ] generics.md
 - [ ] index-signatures.md
 - [x] interfaces.md
-- [x] lib.d.ts.md
+- [x] ✅ lib.d.ts.md
 - [ ] literal-types.md
 - [x] migrating.md
 - [ ] mixins.md
 - [ ] moving-types.md
 - [ ] never.md
 - [ ] readonly.md
-- [x] type-assertion.md
+- [x] ✅ type-assertion.md
 - [ ] type-compatibility.md
 - [ ] type-guard.md
 - [ ] type-inference.md
