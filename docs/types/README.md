@@ -1,4 +1,3 @@
-
 # Progress
 
 - [x] ambient/
@@ -12,7 +11,7 @@
 - [ ] exceptions.md
 - [x] freshness.md 👩‍💻
 - [ ] functions.md
-- [ ] generics.md
+- [x] generics.md 👩‍💻
 - [ ] index-signatures.md
 - [x] interfaces.md
 - [x] lib.d.ts.md 👩‍💻
