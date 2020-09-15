@@ -24,5 +24,5 @@
 - [x] type-assertion.md 👩‍💻
 - [ ] type-compatibility.md
 - [ ] type-guard.md
-- [ ] type-inference.md
+- [x] type-inference.md
 - [x] type-system.md
