@@ -23,6 +23,6 @@
 - [ ] readonly.md
 - [x] type-assertion.md 👩‍💻
 - [ ] type-compatibility.md
-- [ ] type-guard.md
+- [x] type-guard.md 👩‍💻
 - [x] type-inference.md
 - [x] type-system.md
