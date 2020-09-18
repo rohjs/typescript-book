@@ -18,7 +18,7 @@
 - [ ] literal-types.md
 - [x] migrating.md
 - [ ] mixins.md
-- [ ] moving-types.md
+- [ ] moving-types.m
 - [ ] never.md
 - [ ] readonly.md
 - [x] type-assertion.md 👩‍💻
