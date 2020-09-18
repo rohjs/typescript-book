@@ -22,7 +22,7 @@
 - [ ] never.md
 - [ ] readonly.md
 - [x] type-assertion.md 👩‍💻
-- [ ] type-compatibility.md
+- [ ] type-compatibility.m
 - [x] type-guard.md 👩‍💻
 - [x] type-inference.md
 - [x] type-system.md
