@@ -19,7 +19,7 @@
 - [x] migrating.md
 - [ ] mixins.md
 - [ ] moving-types.md
-- [ ] never.md
+- [ ] never.m
 - [ ] readonly.md
 - [x] type-assertion.md 👩‍💻
 - [ ] type-compatibility.md
