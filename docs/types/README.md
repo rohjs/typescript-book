@@ -21,7 +21,7 @@
 - [ ] moving-types.md
 - [ ] never.md
 - [ ] readonly.md
-- [x] type-assertion.m 👩‍💻
+- [x] type-assertion.md 👩‍💻
 - [ ] type-compatibility.md
 - [x] type-guard.md 👩‍💻
 - [x] type-inference.md
