@@ -3,10 +3,10 @@
 * [구조적 타이핑 (Structural)](#구조적-타이핑-structural)
 * [변형 (Variance)](#변형-variance)
 * [함수](#함수)
-  * [Return Type](#return-type)
-  * [Number of arguments](#number-of-arguments)
-  * [Optional and rest parameters](#optional-and-rest-parameters)
-  * [Types of arguments](#types-of-arguments)
+  * [리턴 타입](#리턴-타입)
+  * [인자 개수](#인자-개수)
+  * [선택적 & Rest 파라미터](#선택적-rest-파라미터)
+  * [인자 타입](#인자-타입)
 * [Enums](#enums)
 * [Classes](#classes)
 * [Generics](#generics)
@@ -109,7 +109,6 @@ In type compatibility of complex types composed of such `Base` and `Child` types
 * Bivariant : (bi aka both) both co and contra.
 * Invariant : if the types aren't exactly the same then they are incompatible.
 
-
 * 공변共變(Covariant): (co = 접합점) *같은 방향*일 때만
 * 반변反變(Contravariant): (contra = 반대의) *반대 방향*일 때만
 * 이변二變(Bivariant): (bi = 둘 다) 공변共變, 반변反變을 모두 포함
@@ -119,39 +118,37 @@ In type compatibility of complex types composed of such `Base` and `Child` types
 
 > Note: JavaScript와 같이 변경 가능한 데이터가 존재하는 언어에서 완전하고 견고한 타입 시스템을 적용하려면, `invariant(불변)`만이 유효한 옵션입니다. 하지만 앞서 말씀드렸듯 *편의성*이 우리로 하여금 안전하지 않은 선택을 하게 만듭니다.
 
-## Functions 함수
+## 함수
 
 There are a few subtle things to consider when comparing two functions.
 
 두 함수를 비교할 때 몇몇 미묘한 점들을 고려해야 합니다.
 
-### Return Type 리턴 타입
+### 리턴 타입
 
 `covariant`: The return type must contain at least enough data.
 
-`공변(covariant)`: 리턴 타입은 최소한 필수 데이터는 모두 갖춰야 합니다.
+`공변共變(covariant)`: 리턴 타입은 최소한의 필수 데이터를 모두 갖춰야 합니다.
 
 ```ts
 /** 타입 위계질서 */
 interface Point2D { x: number; y: number; }
 interface Point3D { x: number; y: number; z: number; }
 
-/** Two sample functions */
+/** 두 예시 함수 */
 let iMakePoint2D = (): Point2D => ({ x: 0, y: 0 });
 let iMakePoint3D = (): Point3D => ({ x: 0, y: 0, z: 0 });
 
-/** Assignment */
+/** 할당 */
 iMakePoint2D = iMakePoint3D; // ㅇㅋ
 iMakePoint3D = iMakePoint2D; // ERROR: Point2D는 Point3D에 할당할 수 없습니다.
 ```
 
-### Number of arguments 인자의 갯수
-
-<!-- 더주면 이새끼는 어떻게 처리하라고, 실행맥락과 타입 -->
+### 인자 개수
 
 Fewer arguments are okay (i.e. functions can choose to ignore additional parameters). After all you are guaranteed to be called with at least enough arguments.
 
-인자 수가 적은 건 괜찮습니다. (가령, 함수에서 추가적인 매개 변수를 무시할 수 있으니까요.) 결국 최소한의 필요 인수로만으로도 함수를 호출할 수 있다는 것입니다.
+인자의 갯수를 적게 전달되는 것은 허용됩니다. (함수에서 추가로 전달된 매개 변수를 무시할 수 있으니까요.) 이는 즉 최소한의 필요 인수로만으로도 함수 호출을 보장받을 수 있음을 뜻합니다.
 
 ```ts
 let iTakeSomethingAndPassItAnErr
@@ -161,16 +158,15 @@ iTakeSomethingAndPassItAnErr(() => null) // ㅇㅋ
 iTakeSomethingAndPassItAnErr((err) => null) // ㅇㅋ
 iTakeSomethingAndPassItAnErr((err, data) => null) // ㅇㅋ
 
-// ERROR: Argument of type '(err: any, data: any, more: any) => null' is not assignable to parameter of type '(err: Error, data: any) => void'.
-// ERROR: 인자로 전달된 '(err: any, data: any, more: any) => null' 타입은 매개 변수 타입 '(err: Error, data: any) => void'에 할당할 수 없습니다.
+// ERROR: 인자 타입 '(err: any, data: any, more: any) => null'은 매개 변수 타입 '(err: Error, data: any) => void'에 할당할 수 없습니다.
 iTakeSomethingAndPassItAnErr((err, data, more) => null);
 ```
 
-### Optional and Rest Parameters 선택적 & Rest 파라미터
+### 선택적 & Rest 파라미터
 
 Optional (pre determined count) and Rest parameters (any count of arguments) are compatible, again for convenience.
 
-선택적 인수(미리 결정된 개수)와 Rest 파라미터(인수가 몇 개가 되든 상관없습니다)은 편의를 위해 호환 가능합니다.
+선택적 인수(인자의 개수가 미리 정의된 경우)와 Rest 파라미터(인수의 개수가 정해지지 않은 경우) 역시 편의성을 위해 호환 가능하게 여겨집니다.
 
 ```ts
 let foo = (x:number, y: number) => { /* do something */ }
@@ -183,62 +179,60 @@ bas = bar = foo;
 
 > Note: optional (in our example `bar`) and non optional (in our example `foo`) are only compatible if strictNullChecks is false.
 
-> Note: 선택적 인수(위의 경우 `bar`)와 필수 인수(위의 경우 `foo`)는 `strictNullChecks`가 `false`로 설정된 경우에만 호환 가능합니다.
+> Note: 단, `strictNullChecks`가 `false`로 설정된 경우에만 선택적 인수(위의 경우 `bar`)와 필수 인수(위의 경우 `foo`)가 호환 가능합니다.
 
-### Types of arguments 인자 타입
+### 인자 타입
 
 `bivariant` : This is designed to support common event handling scenarios
 
-`이변형(Bivariant)`: 이벤트 핸들링을 지원하기 위해 고안되었습니다.
+`이변二變(bivariant)`: 이벤트 핸들링을 지원하기 위해 고안되었습니다.
 
 ```ts
-/** Event Hierarchy */
 /** Event 위계 */
 interface Event { timestamp: number; }
 interface MouseEvent extends Event { x: number; y: number }
 interface KeyEvent extends Event { keyCode: number }
 
-/** Sample event listener */
+/** 이벤트 리스너 예시 */
 enum EventType { Mouse, Keyboard }
 function addEventListener(eventType: EventType, handler: (n: Event) => void) {
   /* ... */
 }
 
 // Unsound, but useful and common. Works as function argument comparison is bivariant
-// 불안정하긴 하지만 유용하고 흔히 사용되는 케이스입니다. 함수 인수 비교가 이변성으로 작동합니다.
+// 안전하진 않지만 여전히 유용하고 흔히 사용되는 케이스입니다. 함수의 인수 비교가 이변성二變(bivariant)으로 작동합니다.
 addEventListener(EventType.Mouse, (e: MouseEvent) => console.log(e.x + "," + e.y));
 
 // Undesirable alternatives in presence of soundness
-// 견고함이란 측면에서 바람직하지 않은 대안들
+// 타입 안정성이란 측면에서는 바람직하지 못한 대안들
 
 addEventListener(EventType.Mouse, (e: Event) => console.log((<MouseEvent>e).x + "," + (<MouseEvent>e).y));
 addEventListener(EventType.Mouse, <(e: Event) => void>((e: MouseEvent) => console.log(e.x + "," + e.y)));
 
 // Still disallowed (clear error). Type safety enforced for wholly incompatible types
-// 허용되지 않습니다(명백한 에러입니다). 완전히 호환되지 않는 타입들에게는 타입 안정성이 강제됩니다.
-
+// 허용되지 않습니다(=명백한 에러). 완전히 호환되지 않는 타입에게는 타입 안정성이 강제됩니다.
 addEventListener(EventType.Mouse, (e: number) => console.log(e));
 ```
 
 Also makes `Array<Child>` assignable to `Array<Base>` (covariance) as the functions are compatible. Array covariance requires all `Array<Child>` functions to be assignable to `Array<Base>` e.g. `push(t:Child)` is assignable to `push(t:Base)` which is made possible by function argument bivariance.
 
-또한 이는 `Array<Child>`가 `Array<Base>` (공존)에 할당 가능하게 합니다. 왜냐하면 함수가 호환이 되기 때문입니다. 배열 공존성(Array covariance)는 모든 `Array<Child>` 함수들이 `Array<Base>`에 할당이 가능하길 요구하기 때문입니다. 가령 `push(t: Child)`는 `push(t: Base)`에 할당이 가능하고 이는 함수의 인자 이변형(bivariance)이 가능하게 합니다.
+또한 이는 `Array<Child>`가 `Array<Base>`에 할당 가능하게 허용하는 이유이기도 한데(공변성共變), 각 타입의 함수(메소드)들이 모두 호환이 되기 때문입니다. 배열 공변성(Array covariance)은 모든 `Array<Child>` 함수(메소드)가 `Array<Base>`의 함수(메소드)에 할당 가능하기를 요구합니다. 예를 들어, `push(t: Child)`는 `push(t: Base)`에 할당이 가능한데 이는 함수 인자의 이변성(bivariance)이 작용했기 때문입니다.
 
 **This can be confusing for people coming from other languages** who would expect the following to error but will not in TypeScript:
 
-아래 코드가 에러를 발생시킬 것이라 예상한 **다른 언어에서 넘어온 분**들에게는 헷갈릴 수 있습니다:
+아래의 예제는 **다른 언어에서 넘어오신 분**들에게는 굉장히 헷갈릴 수 있습니다. 그들은 보통 아래 코드에서 에러가 발생할 것이라 예상하지만 TypeScript는 그렇지 않기 때문입니다:
 
 ```ts
-/** Type Hierarchy */
+/** 타입 위계 */
 interface Point2D { x: number; y: number; }
 interface Point3D { x: number; y: number; z: number; }
 
-/** Two sample functions */
+/** 예시 함수 */
 let iTakePoint2D = (point: Point2D) => { /* do something */ }
 let iTakePoint3D = (point: Point3D) => { /* do something */ }
 
-iTakePoint3D = iTakePoint2D; // ㅇㅋ : Reasonable 그럴 수 있찌
-iTakePoint2D = iTakePoint3D; // ㅇㅋ : WHAT 응?
+iTakePoint3D = iTakePoint2D; // ㅇㅋ : 그렇지. 그렇게 되어야지.
+iTakePoint2D = iTakePoint3D; // ㅇㅋ : ? 뭐라구?
 ```
 
 ## Enums
