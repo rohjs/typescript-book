@@ -1,9 +1,8 @@
-* [Type Compatibility](#type-compatibility)
-* [Soundness](#soundness)
-* [Structural](#structural)
-* [Generics](#generics)
-* [Variance](#variance)
-* [Functions](#functions)
+* [타입 호환](#타입-호환)
+* [안전성 (Soundness)](#안정성-soundness)
+* [구조적 타이핑 (Structural)](#구조적-타이핑-structural)
+* [변형 (Variance)](#변형-variance)
+* [함수](#함수)
   * [Return Type](#return-type)
   * [Number of arguments](#number-of-arguments)
   * [Optional and rest parameters](#optional-and-rest-parameters)
@@ -17,96 +16,93 @@
 
 Type Compatibility (as we discuss here) determines if one thing can be assigned to another. E.g. `string` and `number` are not compatible:
 
-타입 호환(Type Compatibility)은 어떤 항목 다른 항목에 할당할 수 있는 지를 결정합니다. 가령, `string`과 `number`는 서로 호환이 되지 않겠죠:
+타입 호환(Type Compatibility)은 특정 타입을 다른 타입에 할당이 가능한지 결정합니다. 가령, `string`과 `number`는 서로 호환이 되지 않습니다:
 
 ```ts
 let str: string = "Hello";
 let num: number = 123;
 
-str = num; // ERROR: `number`는 `string`에 할당할 수 없습니다.
-num = str; // ERROR: `string`은 `number`에 할당할 수 없습니다.
+str = num; // ERROR: `number`를 `string`에 할당할 수 없습니다.
+num = str; // ERROR: `string`을 `number`에 할당할 수 없습니다.
 ```
 
-## Soundness 견고함
+## 안정성 (Soundness)
 
 TypeScript's type system is designed to be convenient and allows for *unsound* behaviours e.g. anything can be assigned to `any` which means telling the compiler to allow you to do whatever you want:
 
-TypeScript의 타입 시스템은 편하게 사용할 수 있도록 만들어 졌고, 그렇기에 *견고하지 않은* 행태도 허용합니다. 가령, 컴파일러에게 타입을 원하는 대로 사용할 거라는 걸 알리는 `any`라는 타입은 어떤 것에든 할당할 수 있습니다.
+TypeScript의 타입 시스템은 편리하게 사용할 수 있도록 고안되어, 종종 *불안전한* 타입 호환을 허용하기도 합니다. 대표적인 예로 `any`가 있습니다. 컴파일러에게 (작성자가) 마음대로 타입을 사용할 것이란 뜻을 전달하는 `any`의 경우 모든 타입에 할당할 수 있기 때문입니다.
 
 ```ts
 let foo: any = 123;
 foo = "Hello";
 
-// Later
-foo.toPrecision(3); // Allowed as you typed it as `any` `any`라고 타입을 정했기에 어떠한 것도 될 수 있습니다.
+// 이후
+foo.toPrecision(3); // 타입이 `any`이기 때문에 이 경우도 허용됩니다.
 ```
 
-## Structural 구조적
+## 구조적 타이핑 (Structural)
 
 TypeScript objects are structurally typed. This means the *names* don't matter as long as the structures match
 
-TypeScript 객체는 구조적 타이핑이 되어 있습니다. 즉 구조만 맞다면 *이름*은 중요하지 않다는 것입니다:
+TypeScript 객체는 구조적 타이핑을 기반으로 타입 시스템을 갖추고 있습니다. 즉, 구조만 일치한다면 *이름*은 크게 중요하지 않다는 것입니다:
 
 ```ts
 interface Point {
-    x: number,
-    y: number
+  x: number,
+  y: number
 }
 
 class Point2D {
-    constructor(public x:number, public y:number){}
+  constructor(public x: number, public y :number) {}
 }
 
 let p: Point;
-// OK, because of structural typing
-// ㅇㅋ, 왜냐하면 구조적 타이핑을 따르니까
+// ㅇㅋ, 구조적 타이핑에 기반하기 때문.
 p = new Point2D(1,2);
 ```
 
 This allows you to create objects on the fly (like you do in vanilla JS) and still have safety whenever it can be inferred.
 
-이를 통해 (바닐라 JS에서와 같이) 즉시 객체를 생성하고 추론할 수 있을 때는 타입 안정성을 유지할 수 있습니다.
+이를 통해 우리는 TypeScript로 (마치 바닐라 JS에서 그러했듯) 즉시 객체를 생성하고 타입 추론이 가능할 땐 타입 안정성도 유지할 수 있습니다.
 
 Also *more* data is considered fine:
 
-또한 *추가적인* 데이터도 허용합니다:
+또한 *추가* 데이터도 허용합니다:
 
 ```ts
 interface Point2D {
-    x: number;
-    y: number;
+  x: number;
+  y: number;
 }
 interface Point3D {
-    x: number;
-    y: number;
-    z: number;
+  x: number;
+  y: number;
+  z: number;
 }
 var point2D: Point2D = { x: 0, y: 10 }
 var point3D: Point3D = { x: 0, y: 10, z: 20 }
 function iTakePoint2D(point: Point2D) { /* do something */ }
 
-iTakePoint2D(point2D); // exact match okay 100% 매치 ㅇㅋ
-iTakePoint2D(point3D); // extra information okay 추가적인 정보가 있지만 ㅇㅋ
-iTakePoint2D({ x: 0 }); // Error: missing information `y` `y`에 대한 정보가 빠졌습니다.
+iTakePoint2D(point2D); // 100% 일치하니 ㅇㅋ
+iTakePoint2D(point3D); // 추가적인 정보가 있지만 ㅇㅋ
+iTakePoint2D({ x: 0 }); // Error: `y`에 대한 데이터가 빠졌습니다.
 ```
 
-## Variance 분산, 변형
+## 변형 (Variance)
 
 Variance is an easy to understand and important concept for type compatibility analysis.
 
-분산은 이해하기 쉽고 타입 호환성 분석에 아주 중요한 개념입니다.
+변형(variance)은 쉽게 이해 가능하고 타입 호환성 분석에 있어 아주 중요한 개념입니다.
 
 For simple types `Base` and `Child`, if `Child` is a child of `Base`, then instances of `Child` can be assigned to a variable of type `Base`.
 
-`Base`와 `Child` 같은 간단한 타입에서, `Child`가 `Base`의 자식이라면 `Child` 인스턴스는 모두 `Base` 타입의 변수에 할당될 수 있습니다.
+`Base`와 `Child` 같이 간단한 타입의 경우를 예를 들겠습니다. 가령 `Child`가 `Base`의 자식이라면, `Child`의 인스턴스는 모두 `Base` 타입의 변수에 할당 가능합니다.
 
-> This is polymorphism 101
-
-> 이것이 다형성 101(polymorphism 101)입니다.
+> 이는 다형성 101(polymorphism 101)입니다.
 
 In type compatibility of complex types composed of such `Base` and `Child` types depends on where the `Base` and `Child` in similar scenarios is driven by *variance*.
 
-`Base`와 `Child`와 같은 타입들로 구성된 복잡한 타입의 타입 호환성은 유사한 상황 속에서 `Base`와 `Child`가 *변형*에 의해 어디서 주도되는 지에 따라 다릅니다.
+`Base`와 `Child` 등 여러가지 타입으로 구성된 복잡한 타입의 타입 호환성은 유사한 시나리오에서 `Base`와 `Child`가 *변형*에 의해 주도 되는지 위치에 따라 다릅니다.
 
 * Covariant : (co aka joint) only in *same direction*
 * Contravariant : (contra aka negative) only in *opposite direction*
@@ -114,26 +110,26 @@ In type compatibility of complex types composed of such `Base` and `Child` types
 * Invariant : if the types aren't exactly the same then they are incompatible.
 
 
-* 공변(Covariant): (co=접합) *같은 방향*일 때만
-* 반변성(Contravariant): (contra=반대의) *반대 방향*일때만
-* 이변형(Bivariant): (bi=둘다) 공변과 반변성 모두 포함
-* 불변(Invariant): 타입이 정확하게 일치하지 않으면 호환 불가
+* 공변共變(Covariant): (co = 접합점) *같은 방향*일 때만
+* 반변反變(Contravariant): (contra = 반대의) *반대 방향*일 때만
+* 이변二變(Bivariant): (bi = 둘 다) 공변共變, 반변反變을 모두 포함
+* 불변不變(Invariant): 타입이 정확하게 일치하지 않으면 무조건 호환 불가
 
 > Note: For a completely sound type system in the presence of mutable data like JavaScript, `invariant` is the only valid option. But as mentioned *convenience* forces us to make unsound choices.
 
-> Note: JavaScript와 같은 변형 가능한 데이터가 존재하는 언어에서 완벽하게 견고한 타입 시스템을 적용하기 위해선 오직 `invariant(불변)`만이 유효한 선택지입니다. 하지만 앞서 말씀드렸듯 이 *편의성*이란 요소가 우리로 하여금 견고하지 못한 선택을 하게 만듭니다.
+> Note: JavaScript와 같이 변경 가능한 데이터가 존재하는 언어에서 완전하고 견고한 타입 시스템을 적용하려면, `invariant(불변)`만이 유효한 옵션입니다. 하지만 앞서 말씀드렸듯 *편의성*이 우리로 하여금 안전하지 않은 선택을 하게 만듭니다.
 
 ## Functions 함수
 
 There are a few subtle things to consider when comparing two functions.
 
-두 함수를 비교할 땐 몇 가지 미묘한 차이점을 고려해야 합니다.
+두 함수를 비교할 때 몇몇 미묘한 점들을 고려해야 합니다.
 
 ### Return Type 리턴 타입
-<!-- 주기로 한 건 다 줘야지 -->
+
 `covariant`: The return type must contain at least enough data.
 
-`공변(covariant)`: 리턴 타입은 적어도 필수 데이터는 모두 갖춰야 함.
+`공변(covariant)`: 리턴 타입은 최소한 필수 데이터는 모두 갖춰야 합니다.
 
 ```ts
 /** 타입 위계질서 */
@@ -159,7 +155,7 @@ Fewer arguments are okay (i.e. functions can choose to ignore additional paramet
 
 ```ts
 let iTakeSomethingAndPassItAnErr
-    = (x: (err: Error, data: any) => void) => { /* do something */ };
+  = (x: (err: Error, data: any) => void) => { /* do something */ };
 
 iTakeSomethingAndPassItAnErr(() => null) // ㅇㅋ
 iTakeSomethingAndPassItAnErr((err) => null) // ㅇㅋ
@@ -205,7 +201,7 @@ interface KeyEvent extends Event { keyCode: number }
 /** Sample event listener */
 enum EventType { Mouse, Keyboard }
 function addEventListener(eventType: EventType, handler: (n: Event) => void) {
-    /* ... */
+  /* ... */
 }
 
 // Unsound, but useful and common. Works as function argument comparison is bivariant
@@ -282,13 +278,13 @@ status = color; // ERROR
 
 ```ts
 class Animal {
-    feet: number;
-    constructor(name: string, numFeet: number) { /** do something */ }
+  feet: number;
+  constructor(name: string, numFeet: number) { /** do something */ }
 }
 
 class Size {
-    feet: number;
-    constructor(meters: number) { /** do something */ }
+  feet: number;
+  constructor(meters: number) { /** do something */ }
 }
 
 let a: Animal;
@@ -346,7 +342,7 @@ However, if `T` is used, it will play a role in compatibility based on its *inst
 
 ```ts
 interface NotEmpty<T> {
-    data: T;
+  data: T;
 }
 let x: NotEmpty<number>;
 let y: NotEmpty<string>;
@@ -361,11 +357,11 @@ In cases where generic arguments haven't been *instantiated* they are substitute
 
 ```ts
 let identity = function<T>(x: T): T {
-    // ...
+  // ...
 }
 
 let reverse = function<U>(y: U): U {
-    // ...
+  // ...
 }
 
 identity = reverse;  // Okay because (x: any)=>any matches (y: any)=>any
@@ -385,53 +381,57 @@ class Animal { name: string; }
 class Cat extends Animal { meow() { } }
 
 const animals = new List<Animal>();
-animals.add(new Animal()); // Okay
-animals.add(new Cat()); // Okay
+animals.add(new Animal()); // ㅇㅋ
+animals.add(new Cat()); // ㅇㅋ
 
 const cats = new List<Cat>();
 cats.add(new Animal()); // Error
-cats.add(new Cat()); // Okay
+cats.add(new Cat()); // ㅇㅋ
 ```
 
-## FootNote: Invariance
+## FootNote: Invariance 각주: 불변성
 
 We said invariance is the only sound option. Here is an example where both `contra` and `co` variance are shown to be unsafe for arrays.
 
+앞서 견고한 옵션은`불변(invariance)` 밖에 없다고 이야기했습니다. 아래의 예제는 `이변형`과 `공변성`이 배열에 있어 왜 안전하지 않은지를 보여줍니다:
+
 ```ts
-/** Hierarchy */
+/** 위계 */
 class Animal { constructor(public name: string){} }
 class Cat extends Animal { meow() { } }
 
-/** An item of each */
+/** 각 class의 아이템 */
 var animal = new Animal("animal");
 var cat = new Cat("cat");
 
 /**
- * Demo : polymorphism 101
+ * Demo : 다변형 101
  * Animal <= Cat
  */
-animal = cat; // Okay
+animal = cat; // ㅇㅋ
 cat = animal; // ERROR: cat extends animal
+// ERROR: cat은 animal을 확장합니다.
 
 /** Array of each to demonstrate variance */
+/** 분산을 보여주기 위한 각각의 배열 */
 let animalArr: Animal[] = [animal];
 let catArr: Cat[] = [cat];
 
 /**
- * Obviously Bad : Contravariance
+ * Obviously Bad : Contravariance 분명히 나쁨: 반변성
  * Animal <= Cat
  * Animal[] >= Cat[]
  */
-catArr = animalArr; // Okay if contravariant
-catArr[0].meow(); // Allowed but BANG 🔫 at runtime
+catArr = animalArr; // Okay if contravariant 반변성일 경우 허용됩니다
+catArr[0].meow(); // Allowed but BANG 🔫 at runtime 허용은 되었지만 런타임에서 BANG 🔫 에러가 납니다.
 
 
 /**
- * Also Bad : covariance
+ * Also Bad : covariance 또다른 나쁜 사례: 공변성
  * Animal <= Cat
  * Animal[] <= Cat[]
  */
-animalArr = catArr; // Okay if covariant
-animalArr.push(new Animal('another animal')); // Just pushed an animal into catArr!
-catArr.forEach(c => c.meow()); // Allowed but BANG 🔫 at runtime
+animalArr = catArr; // Okay if covariant 공변한다면 허용됩니다.
+animalArr.push(new Animal('another animal')); // Just pushed an animal into catArr! catArr에 animal을 푸시했습니다!
+catArr.forEach(c => c.meow()); // Allowed but BANG 🔫 at runtime 허용은 되었지만 런타임에서 BANG 🔫 에러가 납니다.
 ```
